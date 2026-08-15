@@ -1,0 +1,9 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2026 TCPartsDirect, LLC <Antonio Gonzalez>
+Everyone is permitted to copy and distribute verbatim copies of this license document.
+
+ADDITIONAL PATENT NOTICE:
+The software simulation code contained herein is licensed under GPLv3 for open academic research.
+The underlying physical GVF hardware, silicon bitline gating, and ASIC/FPGA circuit architectures remain protected under U.S. Provisional Patent Applications held by TCPartsDirect, LLC. Commercial hardware implementations require explicit licensing.
