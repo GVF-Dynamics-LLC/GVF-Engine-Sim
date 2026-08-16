@@ -9,6 +9,12 @@ The **Gated Vector Field (GVF) Engine** introduces a dynamic, time-dependent AC 
 
 $$\text{Threshold}(t) = V_{\text{base}} + A \cdot \sin(2\pi f t + \phi)$$
 
+## Key Architectural Applications
+1. **Low-Power Global Workspaces:** Functions as an algorithmic metronome across middle-layer Feed-Forward Networks (FFNs), maintaining temporal coherence and reasoning stability at milliwatt edge power.
+2. **Compute-In-Memory (CIM) Bitline Gating:** Integrates with hardware analog comparators to freeze downstream ALU clock trees in under 0.01 ms whenever activation vectors fall below $V_{\text{th}}(t)$.
+3. **Environmental Harmonic Alignment:** Internal carrier wave frequencies ($f$) can be phase-locked to physical environment rhythms—such as a 60 Hz power grid for transient fault detection or a 1 Hz cardiac cycle for biomedical telemetry.
+
+
 ## Benchmark Summary (Tonic N-MNIST)
 | Configuration | Amplitude ($A$) | Frequency ($f$) | Epoch 5 Accuracy | Optimization Delta |
 | :--- | :--- | :--- | :--- | :--- |
