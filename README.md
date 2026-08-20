@@ -50,3 +50,10 @@ The underlying hardware architectures, Compute-In-Memory (CIM) bitline gating me
   * **Pillar 2 (Global Workspace Regularization):** Imposes a globally synchronized periodic threshold waveform across middle-layer Feed-Forward Networks (FFNs) to enforce temporal coherence and prevent latent state dispersion.
   * **Pillar 3 (Environmental Harmonic Alignment):** System specification for phase-locking internal threshold frequency ($f_{\text{internal}}$) to external environmental frequencies ($f_{\text{ext}}$), such as $60\text{ Hz}$ grid fundamental waves or $1\text{ Hz}$ cardiac rhythms, via closed-loop Phase-Locked Loops (PLL).
   * **Pillar 4 (Entropy Circuit Breaker):** Architectural fail-safe specification defined by real-time tensor entropy calculation $H(x) = -\sum p_i \log_2(p_i)$. When activation entropy exceeds baseline complexity thresholds ($\Delta H > \tau$), the dynamic wave generator automatically resets to baseline $V_{\text{base}}$ to preserve deterministic output quality.
+
+---
+
+### Benchmark Methodology & Dataset Roadmap
+* **N-MNIST Preliminary Smoke Test:** The reported +0.37% test accuracy delta (96.53% GVF vs 96.16% Static) on Tonic N-MNIST serves as an initial functional validation of the $V_{\text{th}}(t)$ forward-pass pipeline. 
+* **Statistical Rigor & Multi-Seed Validation:** Ongoing benchmark suites evaluate mean performance ($\mu \pm \sigma$) across 30 independent random seeds using paired McNemar statistical significance testing.
+* **Complex Temporal Datasets (Roadmap):** Because static event-based datasets like N-MNIST can often be classified frame-by-frame, active evaluation is expanding to rich spatiotemporal event streams including **DVS Gesture**, **Spiking Heidelberg Digits (SHD)**, and **DVS-CIFAR10** to isolate phase-synchronization gains under heavy temporal jitter.
