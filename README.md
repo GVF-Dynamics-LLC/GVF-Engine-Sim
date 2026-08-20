@@ -65,3 +65,13 @@ The underlying hardware architectures, Compute-In-Memory (CIM) bitline gating me
 | :--- | :--- | :--- | :--- |
 | **N-MNIST Emulation** | Dynamic $V_{\text{th}}(t)$ AC Wave | **44.50% – 75.16%** | **+0.37%** (96.53% vs 96.16%) |
 | **DVS Gesture Stream** | Dynamic $V_{\text{th}}(t)$ AC Wave | **49.40%** | Tested across 500ms event window |
+
+---
+
+### Hardware Efficiency & Sparsity Metrics
+| Metric | Baseline Static Control | GVF Dynamic Wave Engine | Delta / Savings |
+| :--- | :--- | :--- | :--- |
+| **Total Theoretical MACs** | 2,097,152,000 ops | **1,061,158,912 ops** | **49.40% Dynamic Pruning** |
+| **SRAM Weight Reads Avoided** | 0 Reads | **1,035,993,088 Reads** | **1.035B Reads Suppressed** |
+| **Synaptic Operations (SOPs)** | 429,588,480 SOPs | **217,185,024 SOPs** | **49.44% Active SOP Reduction** |
+| **Clock Tree Gating (ICG)** | 0 Cycles | **247 / 500 Steps** | **49.40% ICG Suppression** |
