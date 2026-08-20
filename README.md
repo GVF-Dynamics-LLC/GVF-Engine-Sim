@@ -34,3 +34,10 @@ The underlying hardware architectures, Compute-In-Memory (CIM) bitline gating me
 * **Hardware Patent Reservation:** The software license granted herein applies exclusively to the execution and modification of the software code. NO LICENSE, express or implied, by estoppel or otherwise, is granted under GPLv3 to manufacture, fabricate, sell, or distribute physical hardware architectures, including but not limited to SRAM Compute-In-Memory (CIM) bitline gating circuits, Integrated Clock Gating (ICG) logic, entropy-aware bypass circuitry, or phase-locked environmental synchronization hardware described in the documentation. These hardware innovations are protected under U.S. Provisional Patent Application No. 64/134,522 owned by TCPartsDirect, LLC.
 * **Implementation Scope:** The files in `src/` provide algorithmic PyTorch/snnTorch software emulation ($V_{\text{th}}(t)$). Physical SystemVerilog / RTL models for SRAM CIM bitlines and ICG cell trees are maintained in private repositories under TCPartsDirect, LLC.
 * **Frequency Notation:** Frequency parameters ($f = 0.05$) represent cycles per simulation step, corresponding to $50\text{ Hz}$ under a $1\text{ ms}$ discrete time-step ($\Delta t = 1\text{ ms}$).
+
+---
+
+### Ownership, Authorship & Assignee Attestation
+* **Sole Author & Inventor:** Antonio Gonzalez (GitHub Account: `gonguz123-blip`).
+* **Copyright Holder & Assignee:** TCPartsDirect, LLC.
+* **Legal Chain of Title:** Antonio Gonzalez is the sole author of the codebase and sole inventor under U.S. Provisional Patent Application No. 64/134,522. All intellectual property, copyrights, trade secrets, and patent rights embodied in this repository are assigned exclusively to TCPartsDirect, LLC. There are no third-party contributors or undisclosed co-inventors.
