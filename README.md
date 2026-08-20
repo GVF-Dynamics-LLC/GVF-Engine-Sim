@@ -41,3 +41,12 @@ The underlying hardware architectures, Compute-In-Memory (CIM) bitline gating me
 * **Sole Author & Inventor:** Antonio Gonzalez (GitHub Account: `gonguz123-blip`).
 * **Copyright Holder & Assignee:** TCPartsDirect, LLC.
 * **Legal Chain of Title:** Antonio Gonzalez is the sole author of the codebase and sole inventor under U.S. Provisional Patent Application No. 64/134,522. All intellectual property, copyrights, trade secrets, and patent rights embodied in this repository are assigned exclusively to TCPartsDirect, LLC. There are no third-party contributors or undisclosed co-inventors.
+
+---
+
+### Technical Novelty & Patent Prior-Art Distinction
+* **Distinction Over Existing Dynamic-Threshold Prior Art:** While general adaptive-threshold SNN models exist in academic literature, the patent-pending novelty of the GVF Engine lies in the **direct physical coupling of a phase-locked AC threshold envelope ($V_{\text{th}}(t)$) to memory-side bitline voltage comparators**. This structure enables zero-suppression and Integrated Clock Gating (ICG) execution freezing at the SRAM bitline before floating-point arithmetic is triggered.
+* **Target Specifications & Roadmap Formulation:**
+  * **Pillar 2 (Global Workspace Regularization):** Imposes a globally synchronized periodic threshold waveform across middle-layer Feed-Forward Networks (FFNs) to enforce temporal coherence and prevent latent state dispersion.
+  * **Pillar 3 (Environmental Harmonic Alignment):** System specification for phase-locking internal threshold frequency ($f_{\text{internal}}$) to external environmental frequencies ($f_{\text{ext}}$), such as $60\text{ Hz}$ grid fundamental waves or $1\text{ Hz}$ cardiac rhythms, via closed-loop Phase-Locked Loops (PLL).
+  * **Pillar 4 (Entropy Circuit Breaker):** Architectural fail-safe specification defined by real-time tensor entropy calculation $H(x) = -\sum p_i \log_2(p_i)$. When activation entropy exceeds baseline complexity thresholds ($\Delta H > \tau$), the dynamic wave generator automatically resets to baseline $V_{\text{base}}$ to preserve deterministic output quality.
