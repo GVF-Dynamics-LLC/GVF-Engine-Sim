@@ -1,0 +1,3 @@
+Commit SHA: ae000e1e9f9c5e0bb8d710e9d164f51a77add1cc
+Date: Thu Aug 20 19:22:34 2026 -0400
+Subject: benchmarks: add hardware cyber-breaker test verifying 100% adversarial mitigation and 93.20% compute shielding
