@@ -1,2 +1,9 @@
 
 ~$*
+
+data/
+*.zip
+*.tar.gz
+
+__pycache__/
+src/__pycache__/
