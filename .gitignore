@@ -27,3 +27,11 @@ data/videos/
 *.wav
 *.png
 
+
+# YouTube OAuth Tokens & Rendered Video Artifacts
+token.json
+data/videos/
+*.mp4
+*.wav
+*.png
+
