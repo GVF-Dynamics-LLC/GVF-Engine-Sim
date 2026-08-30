@@ -45,8 +45,15 @@ def queue_video_for_later(video_file, queue_dir="data/queue"):
     q_path.mkdir(parents=True, exist_ok=True)
     if video_file and Path(video_file).exists():
         target = q_path / Path(video_file).name
-        shutil.move(video_file, target)
-        print(f"[QUEUE SUCCESS] Daily YouTube limit hit. Video saved to queue: {target.name}")
+        try:
+            shutil.copy2(video_file, target)
+            print(f"[QUEUE SUCCESS] Daily YouTube limit hit. Video saved to queue: {target.name}")
+            try:
+                Path(video_file).unlink()
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"[QUEUE NOTICE] Staged file remains in data/videos/: {e}")
 
 def cleanup_video(video_file):
     if video_file and Path(video_file).exists():
@@ -67,13 +74,13 @@ def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_vi
         cleanup_video(video_file)
         return True
 
+    media = None
     try:
         from google_auth_oauthlib.flow import InstalledAppFlow
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
-        from googleapiclient.errors import HttpError
 
         SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
         creds = None
@@ -138,15 +145,12 @@ Eliminating execution entropy and FLOP waste on edge silicon.
         cleanup_video(video_file)
         return True
 
-    except HttpError as e:
+    except Exception as e:
         if "uploadLimitExceeded" in str(e):
             print("\n[YOUTUBE QUOTA NOTICE] Daily channel upload limit reached for today.")
             queue_video_for_later(video_file)
         else:
-            print(f"[YOUTUBE HTTP ERROR] Upload failed: {e}")
-        return False
-    except Exception as e:
-        print(f"[YOUTUBE ERROR] Upload failed: {e}")
+            print(f"[YOUTUBE ERROR] Upload failed: {e}")
         return False
 
 def run_social_orchestrator():

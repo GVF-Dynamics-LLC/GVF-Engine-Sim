@@ -8,6 +8,7 @@ from src.scriptwriter import generate_video_scripts
 from src.media_synthesizer import synthesize_video
 from src.social_publisher import run_social_orchestrator
 from src.benchmarks.bench_thermal import ThermalMemoryBenchmark
+from src.benchmarks.bench_latency import LatencyTailBenchmark
 
 def execute_full_pipeline(task="bench_dvs"):
     print("\n" + "="*70)
@@ -21,7 +22,17 @@ def execute_full_pipeline(task="bench_dvs"):
 
     # 2. Simulation Telemetry
     print(f"\n[STEP 2/5] Running Simulation Benchmark ({task})...")
-    if task == "bench_thermal":
+    if task == "bench_latency":
+        bench = LatencyTailBenchmark()
+        telemetry = bench.run_benchmark()
+        p99_red = telemetry["results"]["p99_reduction"]
+        gvf_p99 = telemetry["results"]["gvf_p99_us"]
+        thread_content = [
+            f"⚡ We just eliminated {p99_red} of p99 tail latency spikes during our {task} benchmark!",
+            f"GVF phase-locked hardware governance held event latency to a deterministic {gvf_p99} ceiling.",
+            "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #Robotics #EdgeAI"
+        ]
+    elif task == "bench_thermal":
         bench = ThermalMemoryBenchmark()
         telemetry = bench.run_benchmark()
         mem_red = telemetry["results"]["memory_reduction"]
@@ -60,7 +71,7 @@ def execute_full_pipeline(task="bench_dvs"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GVF Engine Sim Orchestrator")
-    parser.add_argument("--task", type=str, default="bench_dvs", help="Benchmark task name (bench_dvs or bench_thermal)")
+    parser.add_argument("--task", type=str, default="bench_dvs", help="Benchmark task name (bench_dvs, bench_thermal, or bench_latency)")
     args = parser.parse_args()
     
     execute_full_pipeline(task=args.task)

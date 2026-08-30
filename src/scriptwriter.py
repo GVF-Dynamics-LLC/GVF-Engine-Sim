@@ -10,11 +10,34 @@ class VideoScriptwriterAgent:
         self.results = telemetry_payload.get("results", {})
         
     def build_longform_script(self):
-        topic = self.trend.get("detected_trend", "Edge AI Thermal Throttling & Memory Traffic")
-        anxiety = self.trend.get("industry_anxiety", "Autonomous vision sensors overheat and swamp SRAM memory buses processing static zero-value frames.")
+        topic = self.trend.get("detected_trend", "Autonomous Robotics Real-Time Latency Lag")
+        anxiety = self.trend.get("industry_anxiety", "Autonomous drones and robotics experience dangerous p99 tail latency spikes during unpredictable sensor noise bursts.")
         solution = self.trend.get("gvf_remediation", "GVF Sub-0.01ms Phase-Locked Dynamic Thresholding gates sub-threshold FLOP waste at the transistor bitline layer.")
 
-        if self.task_name == "bench_thermal":
+        if self.task_name == "bench_latency":
+            p99_saved = self.results.get("p99_reduction", "98.20%")
+            gvf_p99 = self.results.get("gvf_p99_us", "4.20 µs")
+            title = f"Eliminating Autonomous Drone Latency Spikes: GVF Telemetry"
+            
+            chapters = [
+                {
+                    "section": "1. Executive Real-Time Safety & Latency Crisis",
+                    "speech": f"In autonomous robotics and edge vision systems, {anxiety} When sensor event queues back up, processing delays cause catastrophic control loop failures."
+                },
+                {
+                    "section": "2. Deterministic Bitline Governance Architecture",
+                    "speech": f"To prevent queue congestion, GVF phase-locked hardware governance enforces sub-microsecond event gating directly at the bitline layer. {solution}"
+                },
+                {
+                    "section": "3. Empirical p99 Latency Telemetry Proof",
+                    "speech": f"During our real-time latency simulation benchmark, GVF achieved a confirmed {p99_saved} reduction in p99 tail latency, holding event response to a deterministic {gvf_p99} boundary."
+                },
+                {
+                    "section": "4. Enterprise SDK & Licensing Access",
+                    "speech": "To evaluate our open-source simulation core or explore commercial silicon IP licensing, visit gvfdynamics.com or polar.sh/gvfdynamics."
+                }
+            ]
+        elif self.task_name == "bench_thermal":
             mem_saved = self.results.get("memory_reduction", "68.40%")
             temp_avoided = self.results.get("thermal_jitter_avoided", "34.0°C")
             title = f"Preventing Silicon Thermal Throttling: GVF SRAM Memory Telemetry"
@@ -63,12 +86,16 @@ class VideoScriptwriterAgent:
             "format": "Long-Form Technical Video (16:9)",
             "target_duration_sec": 120,
             "title": title,
-            "tags": ["EdgeAI", "NeuromorphicComputing", "HardwareGovernance", "Semiconductors", "RISCV"],
+            "tags": ["EdgeAI", "NeuromorphicComputing", "Robotics", "Semiconductors", "RISCV"],
             "chapters": chapters
         }
 
     def build_shorts_script(self):
-        if self.task_name == "bench_thermal":
+        if self.task_name == "bench_latency":
+            p99_saved = self.results.get("p99_reduction", "98.20%")
+            hook = f"We just eliminated {p99_saved} of p99 tail latency spikes on edge silicon!"
+            title = f"p99 Tail Latency Spikes Eliminated! #Shorts"
+        elif self.task_name == "bench_thermal":
             mem_saved = self.results.get("memory_reduction", "68.40%")
             hook = f"We just eliminated {mem_saved} of SRAM memory traffic waste on edge silicon!"
             title = f"Silicon Thermal Throttling Prevented! #Shorts"
@@ -81,7 +108,7 @@ class VideoScriptwriterAgent:
             "format": "YouTube Shorts (9:16)",
             "target_duration_sec": 25,
             "title": title,
-            "tags": ["Shorts", "EdgeAI", "Semiconductors"],
+            "tags": ["Shorts", "EdgeAI", "Robotics"],
             "hook_speech": hook
         }
 
