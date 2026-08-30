@@ -35,3 +35,16 @@ data/videos/
 *.wav
 *.png
 
+# Local Data & Render Outputs
+data/videos/*.mp4
+data/videos/*.mp3
+data/*.json
+
+# Google OAuth Secrets
+client_secret.json
+token.json
+
+# Python Cache
+__pycache__/
+*.pyc
+.env
