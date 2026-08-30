@@ -19,3 +19,11 @@ src/__pycache__/
 client_secret.json
 *.pem
 *.key
+
+# YouTube OAuth Tokens & Rendered Video Artifacts
+token.json
+data/videos/
+*.mp4
+*.wav
+*.png
+
