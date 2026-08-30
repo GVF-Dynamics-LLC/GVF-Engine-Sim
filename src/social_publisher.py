@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import argparse
 import sys
 from pathlib import Path
@@ -39,6 +40,14 @@ def get_latest_video(prefix, video_dir="data/videos"):
     files = sorted(video_path.glob(f"{prefix}*.mp4"), key=os.path.getmtime, reverse=True)
     return str(files[0]) if files else None
 
+def queue_video_for_later(video_file, queue_dir="data/queue"):
+    q_path = Path(queue_dir)
+    q_path.mkdir(parents=True, exist_ok=True)
+    if video_file and Path(video_file).exists():
+        target = q_path / Path(video_file).name
+        shutil.move(video_file, target)
+        print(f"[QUEUE SUCCESS] Daily YouTube limit hit. Video saved to queue: {target.name}")
+
 def cleanup_video(video_file):
     if video_file and Path(video_file).exists():
         try:
@@ -64,6 +73,7 @@ def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_vi
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
+        from googleapiclient.errors import HttpError
 
         SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
         creds = None
@@ -125,10 +135,16 @@ Eliminating execution entropy and FLOP waste on edge silicon.
 
         video_id = response.get("id")
         print(f"Status: [LIVE SUCCESS] Video Uploaded to YouTube! Watch at: https://youtu.be/{video_id}")
-        
         cleanup_video(video_file)
         return True
 
+    except HttpError as e:
+        if "uploadLimitExceeded" in str(e):
+            print("\n[YOUTUBE QUOTA NOTICE] Daily channel upload limit reached for today.")
+            queue_video_for_later(video_file)
+        else:
+            print(f"[YOUTUBE HTTP ERROR] Upload failed: {e}")
+        return False
     except Exception as e:
         print(f"[YOUTUBE ERROR] Upload failed: {e}")
         return False
@@ -144,7 +160,7 @@ def run_social_orchestrator():
 
     if not x_thread:
         x_thread = [
-            "🚀 GVF Dynamics just suppressed 70.60% of FLOP waste on edge silicon during benchmark testing!",
+            "🚀 GVF Dynamics just suppressed FLOP waste on edge silicon during benchmark testing!",
             "Unregulated GPUs waste massive clock cycles on dynamic noise. GVF phase-locked thresholding gates waste at sub-0.01ms speeds.",
             "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #EdgeAI"
         ]
