@@ -5,8 +5,11 @@ import argparse
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+import tweepy
 
 load_dotenv()
+
+POLAR_CHECKOUT_URL = "https://polar.sh/checkout/polar_c_ifALsQATNmgCRfyPPhyLXThLudm4wnewFTX4I0QMeeR"
 
 def prompt_review(platform, content):
     print("\n" + "="*60)
@@ -33,27 +36,48 @@ def prompt_review(platform, content):
         else:
             print("Invalid selection. Please enter y, n, or e.")
 
+def publish_x_thread(thread_tweets):
+    api_key = os.getenv("TWITTER_API_KEY") or os.getenv("X_API_KEY")
+    api_secret = os.getenv("TWITTER_API_SECRET") or os.getenv("X_API_SECRET")
+    access_token = os.getenv("TWITTER_ACCESS_TOKEN") or os.getenv("X_ACCESS_TOKEN")
+    access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET") or os.getenv("X_ACCESS_TOKEN_SECRET")
+
+    if not all([api_key, api_secret, access_token, access_token_secret]):
+        print("[X TWITTER WARNING] API keys incomplete in .env. Running in SIMULATED mode.")
+        print("Status: [SIMULATED SUCCESS] Thread logged.")
+        return False
+
+    try:
+        client = tweepy.Client(
+            consumer_key=api_key,
+            consumer_secret=api_secret,
+            access_token=access_token,
+            access_token_secret=access_token_secret
+        )
+
+        last_tweet_id = None
+        for idx, tweet_text in enumerate(thread_tweets, 1):
+            if last_tweet_id:
+                response = client.create_tweet(text=tweet_text, in_reply_to_tweet_id=last_tweet_id)
+            else:
+                response = client.create_tweet(text=tweet_text)
+
+            last_tweet_id = response.data["id"]
+            print(f"[X LIVE TWEET {idx}/{len(thread_tweets)}] Posted ID: {last_tweet_id}")
+
+        print("\nStatus: [LIVE SUCCESS] Full Thread Successfully Published to X!")
+        return True
+
+    except Exception as e:
+        print(f"[X TWITTER ERROR] Failed to post thread: {e}")
+        return False
+
 def get_latest_video(prefix, video_dir="data/videos"):
     video_path = Path(video_dir)
     if not video_path.exists():
         return None
     files = sorted(video_path.glob(f"{prefix}*.mp4"), key=os.path.getmtime, reverse=True)
     return str(files[0]) if files else None
-
-def queue_video_for_later(video_file, queue_dir="data/queue"):
-    q_path = Path(queue_dir)
-    q_path.mkdir(parents=True, exist_ok=True)
-    if video_file and Path(video_file).exists():
-        target = q_path / Path(video_file).name
-        try:
-            shutil.copy2(video_file, target)
-            print(f"[QUEUE SUCCESS] Daily YouTube limit hit. Video saved to queue: {target.name}")
-            try:
-                Path(video_file).unlink()
-            except Exception:
-                pass
-        except Exception as e:
-            print(f"[QUEUE NOTICE] Staged file remains in data/videos/: {e}")
 
 def cleanup_video(video_file):
     if video_file and Path(video_file).exists():
@@ -65,7 +89,6 @@ def cleanup_video(video_file):
 
 def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_video_scripts.json"):
     if not video_file or not Path(video_file).exists():
-        print(f"[YOUTUBE PUBLISHER] No video file found for upload.")
         return False
 
     client_secret = Path("client_secret.json")
@@ -74,7 +97,6 @@ def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_vi
         cleanup_video(video_file)
         return True
 
-    media = None
     try:
         from google_auth_oauthlib.flow import InstalledAppFlow
         from google.auth.transport.requests import Request
@@ -111,11 +133,11 @@ def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_vi
                 title = v_info.get("title", title)
                 tags = v_info.get("tags", tags)
 
-        description = """🚀 GVF DYNAMICS - Sub-0.01ms Hardware-Enforced AI Governance
+        description = f"""🚀 GVF DYNAMICS - Sub-0.01ms Hardware-Enforced AI Governance
 
 Eliminating execution entropy and FLOP waste on edge silicon.
 
-🛒 Enterprise SDK & Commercial Licensing: https://polar.sh/gvfdynamics
+🛒 Enterprise SDK & Commercial Licensing: {POLAR_CHECKOUT_URL}
 🌐 Official Website: https://gvfdynamics.com
 💻 Open-Source Simulation Core: https://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim
 📄 Privacy Policy & Legal: https://gvfdynamics.com/privacy.html
@@ -136,7 +158,7 @@ Eliminating execution entropy and FLOP waste on edge silicon.
         }
 
         media = MediaFileUpload(video_file, chunksize=-1, resumable=True, mimetype="video/mp4")
-        print(f"[YOUTUBE PUBLISHER LIVE] Uploading {Path(video_file).name} to YouTube with Polar & Asset links...")
+        print(f"[YOUTUBE PUBLISHER LIVE] Uploading {Path(video_file).name}...")
         request = youtube.videos().insert(part="snippet,status", body=body, media_body=media)
         response = request.execute()
 
@@ -146,11 +168,7 @@ Eliminating execution entropy and FLOP waste on edge silicon.
         return True
 
     except Exception as e:
-        if "uploadLimitExceeded" in str(e):
-            print("\n[YOUTUBE QUOTA NOTICE] Daily channel upload limit reached for today.")
-            queue_video_for_later(video_file)
-        else:
-            print(f"[YOUTUBE ERROR] Upload failed: {e}")
+        print(f"[YOUTUBE ERROR] Upload failed: {e}")
         return False
 
 def run_social_orchestrator():
@@ -166,7 +184,7 @@ def run_social_orchestrator():
         x_thread = [
             "🚀 GVF Dynamics just suppressed FLOP waste on edge silicon during benchmark testing!",
             "Unregulated GPUs waste massive clock cycles on dynamic noise. GVF phase-locked thresholding gates waste at sub-0.01ms speeds.",
-            "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #EdgeAI"
+            f"🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: {POLAR_CHECKOUT_URL} #EdgeAI"
         ]
 
     # 1. YouTube Shorts Gate
@@ -190,8 +208,8 @@ def run_social_orchestrator():
     # 3. X (Twitter) Gate
     x_status, x_content = prompt_review("X (Twitter)", x_thread)
     if x_status == "approved":
-        print("[X TWITTER] Publishing thread to X API...")
-        print("Status: [SIMULATED SUCCESS] Thread posted to X!")
+        print("[X TWITTER] Publishing live thread to X API...")
+        publish_x_thread(x_content)
 
 if __name__ == "__main__":
     run_social_orchestrator()

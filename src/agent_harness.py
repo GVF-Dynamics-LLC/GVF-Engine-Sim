@@ -10,6 +10,8 @@ from src.social_publisher import run_social_orchestrator
 from src.benchmarks.bench_thermal import ThermalMemoryBenchmark
 from src.benchmarks.bench_latency import LatencyTailBenchmark
 
+POLAR_CHECKOUT_URL = "https://polar.sh/checkout/polar_c_ifALsQATNmgCRfyPPhyLXThLudm4wnewFTX4I0QMeeR"
+
 def execute_full_pipeline(task="bench_dvs"):
     print("\n" + "="*70)
     print(f"   GVF DYNAMICS FULL MULTI-AGENT AUTONOMOUS PIPELINE ({task.upper()})")
@@ -30,7 +32,7 @@ def execute_full_pipeline(task="bench_dvs"):
         thread_content = [
             f"⚡ We just eliminated {p99_red} of p99 tail latency spikes during our {task} benchmark!",
             f"GVF phase-locked hardware governance held event latency to a deterministic {gvf_p99} ceiling.",
-            "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #Robotics #EdgeAI"
+            f"🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: {POLAR_CHECKOUT_URL} #Robotics #EdgeAI"
         ]
     elif task == "bench_thermal":
         bench = ThermalMemoryBenchmark()
@@ -40,7 +42,7 @@ def execute_full_pipeline(task="bench_dvs"):
         thread_content = [
             f"🔥 We just prevented {temp_av} of silicon thermal jitter during our {task} benchmark!",
             f"GVF phase-locked hardware governance eliminated {mem_red} of SRAM memory bus traffic waste at sub-0.01ms speeds.",
-            "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #EdgeAI #Semiconductors"
+            f"🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: {POLAR_CHECKOUT_URL} #EdgeAI #Semiconductors"
         ]
     else:
         telemetry = {
@@ -50,7 +52,7 @@ def execute_full_pipeline(task="bench_dvs"):
         thread_content = [
             "🚀 GVF Dynamics just suppressed 70.60% of FLOP waste on edge silicon during benchmark testing!",
             "Unregulated GPUs waste massive clock cycles on dynamic noise. GVF phase-locked thresholding gates waste at sub-0.01ms speeds.",
-            "🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: polar.sh/gvfdynamics #EdgeAI"
+            f"🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: {POLAR_CHECKOUT_URL} #EdgeAI"
         ]
 
     telemetry["social_payloads"] = {"x_twitter": {"thread": thread_content}}
