@@ -11,6 +11,13 @@ load_dotenv()
 
 POLAR_CHECKOUT_URL = "https://polar.sh/checkout/polar_c_ifALsQATNmgCRfyPPhyLXThLudm4wnewFTX4I0QMeeR"
 
+def sanitize_tweet_text(text):
+    text = text.strip()
+    # If a tweet starts directly with an @ handle, prefix it with an emoji/space so X doesn't hide it in Replies
+    if text.startswith("@"):
+        text = f"🚀 {text}"
+    return text
+
 def prompt_review(platform, content):
     print("\n" + "="*60)
     print(f" [HUMAN REVIEW GATE] Draft Content for: {platform.upper()}")
@@ -57,15 +64,17 @@ def publish_x_thread(thread_tweets):
 
         last_tweet_id = None
         for idx, tweet_text in enumerate(thread_tweets, 1):
+            cleaned_text = sanitize_tweet_text(tweet_text)
+            
             if last_tweet_id:
-                response = client.create_tweet(text=tweet_text, in_reply_to_tweet_id=last_tweet_id)
+                response = client.create_tweet(text=cleaned_text, in_reply_to_tweet_id=last_tweet_id)
             else:
-                response = client.create_tweet(text=tweet_text)
+                response = client.create_tweet(text=cleaned_text)
 
             last_tweet_id = response.data["id"]
             print(f"[X LIVE TWEET {idx}/{len(thread_tweets)}] Posted ID: {last_tweet_id}")
 
-        print("\nStatus: [LIVE SUCCESS] Full Thread Successfully Published to X!")
+        print("\nStatus: [LIVE SUCCESS] Full Thread Successfully Published to Main Feed!")
         return True
 
     except Exception as e:
@@ -87,90 +96,6 @@ def cleanup_video(video_file):
         except Exception:
             pass
 
-def upload_youtube_video(video_file, is_shorts=True, script_file="data/latest_video_scripts.json"):
-    if not video_file or not Path(video_file).exists():
-        return False
-
-    client_secret = Path("client_secret.json")
-    if not client_secret.exists():
-        print("[YOUTUBE PUBLISHER] client_secret.json missing. Running in SIMULATED UPLOAD mode.")
-        cleanup_video(video_file)
-        return True
-
-    try:
-        from google_auth_oauthlib.flow import InstalledAppFlow
-        from google.auth.transport.requests import Request
-        from google.oauth2.credentials import Credentials
-        from googleapiclient.discovery import build
-        from googleapiclient.http import MediaFileUpload
-
-        SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
-        creds = None
-        token_path = Path("token.json")
-
-        if token_path.exists():
-            creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
-
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file("client_secret.json", SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open(token_path, "w") as token:
-                token.write(creds.to_json())
-
-        youtube = build("youtube", "v3", credentials=creds)
-
-        title = "GVF Dynamics Core Benchmark"
-        tags = ["EdgeAI", "Semiconductors", "Neuromorphic"]
-
-        if Path(script_file).exists():
-            with open(script_file, "r") as f:
-                s_data = json.load(f)
-                key = "shorts" if is_shorts else "longform"
-                v_info = s_data.get(key, {})
-                title = v_info.get("title", title)
-                tags = v_info.get("tags", tags)
-
-        description = f"""🚀 GVF DYNAMICS - Sub-0.01ms Hardware-Enforced AI Governance
-
-Eliminating execution entropy and FLOP waste on edge silicon.
-
-🛒 Enterprise SDK & Commercial Licensing: {POLAR_CHECKOUT_URL}
-🌐 Official Website: https://gvfdynamics.com
-💻 Open-Source Simulation Core: https://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim
-📄 Privacy Policy & Legal: https://gvfdynamics.com/privacy.html
-
-#EdgeAI #NeuromorphicComputing #Semiconductors #HardwareGovernance #RISCV"""
-
-        body = {
-            "snippet": {
-                "title": title,
-                "description": description,
-                "tags": tags,
-                "categoryId": "28"
-            },
-            "status": {
-                "privacyStatus": "public",
-                "selfDeclaredMadeForKids": False
-            }
-        }
-
-        media = MediaFileUpload(video_file, chunksize=-1, resumable=True, mimetype="video/mp4")
-        print(f"[YOUTUBE PUBLISHER LIVE] Uploading {Path(video_file).name}...")
-        request = youtube.videos().insert(part="snippet,status", body=body, media_body=media)
-        response = request.execute()
-
-        video_id = response.get("id")
-        print(f"Status: [LIVE SUCCESS] Video Uploaded to YouTube! Watch at: https://youtu.be/{video_id}")
-        cleanup_video(video_file)
-        return True
-
-    except Exception as e:
-        print(f"[YOUTUBE ERROR] Upload failed: {e}")
-        return False
-
 def run_social_orchestrator():
     payload_file = Path("data/latest_agent_output.json")
     x_thread = []
@@ -182,30 +107,12 @@ def run_social_orchestrator():
 
     if not x_thread:
         x_thread = [
-            "🚀 GVF Dynamics just suppressed FLOP waste on edge silicon during benchmark testing!",
+            "GVF Dynamics just suppressed FLOP waste on edge silicon during benchmark testing!",
             "Unregulated GPUs waste massive clock cycles on dynamic noise. GVF phase-locked thresholding gates waste at sub-0.01ms speeds.",
             f"🔗 Open Core: github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n🛒 Commercial SDK: {POLAR_CHECKOUT_URL} #EdgeAI"
         ]
 
-    # 1. YouTube Shorts Gate
-    shorts_file = get_latest_video("shorts_render_")
-    if shorts_file:
-        yt_status, _ = prompt_review("YouTube Shorts Upload", f"Short Video File: {shorts_file}")
-        if yt_status == "approved":
-            upload_youtube_video(video_file=shorts_file, is_shorts=True)
-        else:
-            cleanup_video(shorts_file)
-
-    # 2. YouTube Long-Form Gate
-    long_file = get_latest_video("longform_render_")
-    if long_file:
-        yt_long_status, _ = prompt_review("YouTube Long-Form Video Upload", f"Long-Form Video File: {long_file}")
-        if yt_long_status == "approved":
-            upload_youtube_video(video_file=long_file, is_shorts=False)
-        else:
-            cleanup_video(long_file)
-
-    # 3. X (Twitter) Gate
+    # X (Twitter) Gate
     x_status, x_content = prompt_review("X (Twitter)", x_thread)
     if x_status == "approved":
         print("[X TWITTER] Publishing live thread to X API...")
