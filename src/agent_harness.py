@@ -7,7 +7,7 @@ from pathlib import Path
 from src.trend_scanner import TrendScannerAgent
 from src.scriptwriter import generate_video_scripts
 from src.media_synthesizer import synthesize_video
-from src.social_publisher import run_social_orchestrator
+from src.social_publisher import run_social_orchestrator, prompt_review
 
 POLAR_CHECKOUT_URL = "https://polar.sh/checkout/polar_c_ifALsQATNmgCRfyPPhyLXThLudm4wnewFTX4I0QMeeR"
 
@@ -71,6 +71,27 @@ def generate_high_signal_x_thread(task_name, results):
         ]
     return thread
 
+def review_youtube_payloads(task_name):
+    script_path = Path("data/latest_video_scripts.json")
+    if not script_path.exists():
+        return
+
+    with open(script_path, "r") as f:
+        scripts = json.load(f)
+
+    long_title = scripts.get("longform", {}).get("title", f"GVF Engine Benchmark: {task_name.upper()}")
+    short_title = scripts.get("shorts", {}).get("title", f"GVF Hardware Governance: {task_name.upper()}")
+
+    # YouTube Longform Gate
+    status_long, _ = prompt_review("YouTube Longform (16:9 Video)", [f"Title: {long_title}", f"Render Asset: data/videos/longform_render_{task_name}.mp4"])
+    if status_long == "approved":
+        print(f"[YOUTUBE LONGFORM] Video asset approved: data/videos/longform_render_{task_name}.mp4")
+
+    # YouTube Shorts Gate
+    status_short, _ = prompt_review("YouTube Short (9:16 Vertical)", [f"Title: {short_title}", f"Render Asset: data/videos/short_render_{task_name}.mp4"])
+    if status_short == "approved":
+        print(f"[YOUTUBE SHORTS] Short asset approved: data/videos/short_render_{task_name}.mp4")
+
 def execute_full_pipeline(task="bench_thermal"):
     print("\n" + "="*70)
     print(f"   GVF DYNAMICS FULL MULTI-AGENT AUTONOMOUS PIPELINE ({task.upper()})")
@@ -79,12 +100,15 @@ def execute_full_pipeline(task="bench_thermal"):
     # 1. Trend Interceptor Agent
     print("\n[STEP 1/5] Deploying Trend Interceptor Agent...")
     scanner = TrendScannerAgent()
-    scanner.run_scan()
+    if hasattr(scanner, "run_scan"):
+        scanner.run_scan()
+    elif hasattr(scanner, "scan"):
+        scanner.scan()
+    elif hasattr(scanner, "run"):
+        scanner.run()
 
-    # 2. Benchmark Core Execution
+    # 2. Benchmark Execution
     results = run_simulation_benchmark(task_name=task)
-    
-    # Generate updated X Thread payload
     x_thread = generate_high_signal_x_thread(task, results)
 
     agent_output = {
@@ -106,12 +130,13 @@ def execute_full_pipeline(task="bench_thermal"):
     print("\n[STEP 3/5] Generating Scriptwriter Payloads...")
     generate_video_scripts()
 
-    # 4. Media Synthesizer Agent
-    print("\n[STEP 4/5] Synthesizing Voiceovers & Rendering 4-Scene Videos...")
+    # 4. Media Synthesizer Agent (Longform + Shorts)
+    print("\n[STEP 4/5] Synthesizing Voiceovers & Rendering 16:9 and 9:16 Videos...")
     synthesize_video()
 
-    # 5. Social Publisher Agent Gate
-    print("\n[STEP 5/5] Launching Human Review Gate & Social Publisher...")
+    # 5. YouTube & X Review Gates
+    print("\n[STEP 5/5] Launching YouTube & X Human Review Gates...")
+    review_youtube_payloads(task)
     run_social_orchestrator()
 
 if __name__ == "__main__":
