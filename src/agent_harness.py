@@ -7,7 +7,7 @@ from pathlib import Path
 from src.trend_scanner import TrendScannerAgent
 from src.scriptwriter import generate_video_scripts
 from src.media_synthesizer import synthesize_video
-from src.social_publisher import run_social_orchestrator, prompt_review
+from src.social_publisher import run_social_orchestrator, prompt_review, upload_youtube_video
 
 POLAR_CHECKOUT_URL = "https://polar.sh/checkout/polar_c_ifALsQATNmgCRfyPPhyLXThLudm4wnewFTX4I0QMeeR"
 
@@ -47,27 +47,27 @@ def run_simulation_benchmark(task_name="bench_thermal"):
 def generate_high_signal_x_thread(task_name, results):
     if task_name == "bench_thermal":
         thread = [
-            "Silicon thermal jitter kills efficiency and reliability on edge AI chips. High-stakes systems care about current flow and thermal limits long before software reads text logs.",
-            f"In our latest telemetry run, GVF phase-locked hardware governance prevented {results['thermal_jitter_avoided']} of thermal jitter while cutting {results['memory_reduction']} of wasted SRAM bus traffic.",
-            "Instead of policing thoughts with software, GVF gates dynamic noise at the bitline layer before ALUs execute. Less useless data movement → lower heat → deterministic performance.",
-            f"Open simulation & methodology:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nCommercial SDK:\n{POLAR_CHECKOUT_URL}",
-            "Anyone else quantifying real bus-traffic waste or thermal jitter on edge SNN accelerators?"
+            "Iterative reasoning loops and recurrent depth increase SRAM memory bus pressure fast. On edge silicon, repeated activation reads drive dynamic heat spikes long before software registers latency.",
+            f"In our latest simulation telemetry, GVF phase-locked hardware governance prevented {results['thermal_jitter_avoided']} of thermal jitter while cutting {results['memory_reduction']} of wasted SRAM bus reads.",
+            "GVF is designed as a licensable Soft IP block (RTL)—gating sub-threshold activations directly inside the memory array before downstream clock trees trigger.",
+            f"Open PyTorch simulation engine:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nTechnical Evaluation Agreement (TEA):\n{POLAR_CHECKOUT_URL}",
+            "Are you currently evaluating clock-gating or bitline-level compute-in-memory IP for custom edge AI SoCs?"
         ]
     elif task_name == "bench_latency":
         thread = [
-            "Tail latency spikes in multi-agent swarms don't start in software—they start at the hardware memory bus when models stall waiting for consensus.",
-            f"Our latest benchmark telemetry confirms a {results['p99_reduction']} reduction in p99 tail latency, holding event response to a deterministic {results['gvf_p99_us']} ceiling.",
-            "GVF phase-locked dynamic thresholding acts as an objective circuit breaker at the bitline layer, clamping execution jitter before ALUs execute.",
-            f"Open-source simulation core:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nCommercial SDK:\n{POLAR_CHECKOUT_URL}",
-            "What p99 latency ceilings or bus contention metrics are you seeing on sparse/neuromorphic hardware?"
+            "p99 tail latency spikes in iterative workloads often start at the SRAM memory bus when execution units stall waiting for activation state transfers.",
+            f"Simulation telemetry confirms a {results['p99_reduction']} reduction in p99 tail latency using GVF dynamic thresholding, establishing a deterministic {results['gvf_p99_us']} ceiling.",
+            "By operating directly on activation magnitudes at sub-0.01ms speeds, GVF provides an objective hardware interlock to stabilize execution entropy.",
+            f"Open-source simulation core:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nTechnical Evaluation Agreement (TEA):\n{POLAR_CHECKOUT_URL}",
+            "What p99 latency ceilings or memory bus contention bounds are you targeting on custom edge accelerators?"
         ]
     else:
         thread = [
-            "Spiking Neural Networks and event cameras burn massive energy evaluating sub-threshold background noise and redundant static frames.",
-            f"On our latest benchmark, GVF phase-locked dynamic thresholding avoided {results['mac_reduction']} of unnecessary MAC operations with zero accuracy loss.",
-            "By gating redundant bitlines directly inside the memory array, we eliminate FLOP waste at sub-0.01ms decision speeds.",
-            f"Open simulation engine:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nCommercial SDK:\n{POLAR_CHECKOUT_URL}",
-            "How are you currently handling static-interval event filtering on edge silicon?"
+            "Spiking Neural Networks and event sensors waste significant power evaluating sub-threshold background noise during static intervals.",
+            f"On the latest DVS benchmark, GVF phase-locked bitline gating avoided {results['mac_reduction']} of unnecessary MAC operations with zero accuracy loss.",
+            "Evaluating threshold conditions directly inside the memory array allows early clock-tree suppression before data reaches arithmetic units.",
+            f"Open simulation repository:\nhttps://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\n\nTechnical Evaluation Agreement (TEA):\n{POLAR_CHECKOUT_URL}",
+            "Curious how others in neuromorphic engineering are handling static-interval event suppression."
         ]
     return thread
 
@@ -81,16 +81,17 @@ def review_youtube_payloads(task_name):
 
     long_title = scripts.get("longform", {}).get("title", f"GVF Engine Benchmark: {task_name.upper()}")
     short_title = scripts.get("shorts", {}).get("title", f"GVF Hardware Governance: {task_name.upper()}")
+    desc = f"GVF Dynamic Thresholding Simulation Telemetry.\n\nOpen Source Engine: https://github.com/GVF-Dynamics-LLC/GVF-Engine-Sim\nCommercial Technical Evaluation (TEA): {POLAR_CHECKOUT_URL}"
 
-    # YouTube Longform Gate
-    status_long, _ = prompt_review("YouTube Longform (16:9 Video)", [f"Title: {long_title}", f"Render Asset: data/videos/longform_render_{task_name}.mp4"])
-    if status_long == "approved":
-        print(f"[YOUTUBE LONGFORM] Video asset approved: data/videos/longform_render_{task_name}.mp4")
+    long_path = Path(f"data/videos/longform_render_{task_name}.mp4")
+    status_long, _ = prompt_review("YouTube Longform (16:9 Video)", [f"Title: {long_title}", f"Render Asset: {long_path}"])
+    if status_long == "approved" and long_path.exists():
+        upload_youtube_video(long_path, long_title, desc)
 
-    # YouTube Shorts Gate
-    status_short, _ = prompt_review("YouTube Short (9:16 Vertical)", [f"Title: {short_title}", f"Render Asset: data/videos/short_render_{task_name}.mp4"])
-    if status_short == "approved":
-        print(f"[YOUTUBE SHORTS] Short asset approved: data/videos/short_render_{task_name}.mp4")
+    short_path = Path(f"data/videos/short_render_{task_name}.mp4")
+    status_short, _ = prompt_review("YouTube Short (9:16 Vertical)", [f"Title: {short_title}", f"Render Asset: {short_path}"])
+    if status_short == "approved" and short_path.exists():
+        upload_youtube_video(short_path, f"{short_title} #Shorts", desc)
 
 def execute_full_pipeline(task="bench_thermal"):
     print("\n" + "="*70)
@@ -130,7 +131,7 @@ def execute_full_pipeline(task="bench_thermal"):
     print("\n[STEP 3/5] Generating Scriptwriter Payloads...")
     generate_video_scripts()
 
-    # 4. Media Synthesizer Agent (Longform + Shorts)
+    # 4. Media Synthesizer Agent
     print("\n[STEP 4/5] Synthesizing Voiceovers & Rendering 16:9 and 9:16 Videos...")
     synthesize_video()
 
